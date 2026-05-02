@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError          # <-- ДОБАВИТЬ ЭТУ СТРОКУ
 from uuid import UUID
 from typing import List
 from app import crud, schemas, database
@@ -62,7 +63,6 @@ async def add_vehicle(
     vehicle_in: schemas.VehicleCreate,
     db: AsyncSession = Depends(get_db),
 ):
-    # Check driver exists
     driver = await crud.get_driver(db, driver_id)
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")
@@ -101,7 +101,6 @@ async def update_status(
     status_update: schemas.DriverStatusUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    """Change driver's online status (offline/available/on_trip). GPS not touched."""
     if status_update.status not in ["offline", "available", "on_trip"]:
         raise HTTPException(status_code=400, detail="Invalid status value")
     driver = await crud.get_driver(db, driver_id)
@@ -112,7 +111,6 @@ async def update_status(
         raise HTTPException(status_code=404, detail="Driver status row missing")
     return status_row
 
-# (Optional) health check
 @app.get("/health")
 async def health():
     return {"status": "ok"}
