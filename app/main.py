@@ -5,6 +5,7 @@ from uuid import UUID
 from typing import List
 from app import crud, schemas, database
 
+
 app = FastAPI(title="Driver Service", version="1.0")
 
 # Dependency
